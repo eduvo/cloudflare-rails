@@ -5,7 +5,8 @@ module CloudflareRails
     # setup defaults before we configure our app.
     DEFAULTS = {
       expires_in: 12.hours,
-      timeout: 5.seconds
+      timeout: 5.seconds,
+      proxy_server: nil,
     }.freeze
 
     config.before_configuration do |app|

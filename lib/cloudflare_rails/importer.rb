@@ -33,12 +33,23 @@ module CloudflareRails
       end
 
       def fetch(url)
+        proxy_uri = URI.parse(ENV['http_proxy'] ? ENV['http_proxy'] : "")
+
+        if !::Rails.application.config.cloudflare.proxy_server.nil?
+          proxy_uri = URI.parse(::Rails.application.config.cloudflare.proxy_server)
+        end
+
         uri = URI("#{BASE_URL}#{url}")
 
         resp = Net::HTTP.start(uri.host,
                                uri.port,
+                               p_addr = proxy_uri.host,
+                               p_port = proxy_uri.port,
+                               p_user = proxy_uri.user,
+                               p_pass = proxy_uri.password,
                                use_ssl: true,
-                               read_timeout: Rails.application.config.cloudflare.timeout) do |http|
+                               read_timeout: Rails.application.config.cloudflare.timeout,
+                               open_timeout: ::Rails.application.config.cloudflare.timeout) do |http|
           req = Net::HTTP::Get.new(uri)
 
           http.request(req)
